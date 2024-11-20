@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { HomeIcon } from "lucide-react";
-import { ToiletIcon, Cloud } from "lucide-react";
+import { ToiletIcon, Cloud, SprayCanIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 function playSineWave(setIsCloudShown: Function, setIsGrowing: Function) {
@@ -27,15 +27,74 @@ function playSineWave(setIsCloudShown: Function, setIsGrowing: Function) {
 export default function HouseComponent() {
   const [isCloudShown, setIsCloudShown] = useState(false);
   const [isGrowing, setIsGrowing] = useState(false);
+  const [isDrawingEnabled, setIsDrawingEnabled] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cleanupRef = useRef<Function | null>(null);
 
   const handleClick = () => {
     playSineWave(setIsCloudShown, setIsGrowing);
   };
 
+  const handleSprayCanClick = () => {
+    if (isDrawingEnabled) {
+      setIsDrawingEnabled(false);
+    } else {
+      setIsDrawingEnabled(true);
+    }
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+
+    const context = canvas?.getContext("2d");
+    let drawing = false;
+    const startDrawing = (event: MouseEvent) => {
+      drawing = true;
+      draw(event);
+    };
+
+    const endDrawing = () => {
+      drawing = false;
+      context?.beginPath();
+    };
+
+    const draw = (event: MouseEvent) => {
+      if (!drawing) return;
+      if (context && canvas) {
+        context.lineWidth = 5;
+        context.lineCap = "round";
+        context.strokeStyle = "red";
+
+        context.lineTo(
+          event.clientX - canvas.offsetLeft,
+          event.clientY - canvas.offsetTop
+        );
+        context.stroke();
+        context.beginPath();
+        context.moveTo(
+          event.clientX - canvas.offsetLeft,
+          event.clientY - canvas.offsetTop
+        );
+      }
+    };
+    canvas?.addEventListener("mousedown", startDrawing);
+    canvas?.addEventListener("mouseup", endDrawing);
+    canvas?.addEventListener("mousemove", draw);
+
+    return () => {
+      canvas?.removeEventListener("mousedown", startDrawing);
+      canvas?.removeEventListener("mouseup", endDrawing);
+      canvas?.removeEventListener("mousemove", draw);
+    };
+  }, [isDrawingEnabled]);
+
   return (
     <div>
       <h1>House</h1>
       <HomeIcon />
+      <Button variant="ghost" size="icon" onClick={handleSprayCanClick}>
+        <SprayCanIcon />
+      </Button>
       <Button variant="ghost" size="icon" onClick={handleClick}>
         <ToiletIcon />
       </Button>
@@ -46,6 +105,19 @@ export default function HouseComponent() {
             height: isGrowing ? "200px" : "100px",
             color: "brown",
             transition: "width 5s, height 5s",
+          }}
+        />
+      )}
+      {isDrawingEnabled && (
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 10,
           }}
         />
       )}
