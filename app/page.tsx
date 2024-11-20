@@ -1,4 +1,4 @@
-import CharacterSelect from "@/components/ui/character-select";
+import CharacterSelect from "@/components/character-select";
 
 export default function Home() {
   return <CharacterSelect />;
