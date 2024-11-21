@@ -38,7 +38,11 @@ export default function CharacterSelect() {
         setProgress(start);
         if (start === 100) {
           clearInterval(interval);
-          router.push("/house");
+          if (selectedCharacter == "elsa-jr") {
+            router.push("/house2");
+          } else {
+            router.push("/house");
+          }
         }
       }, 20); // 2000ms / 100 steps = 20ms per step
     }
@@ -49,7 +53,7 @@ export default function CharacterSelect() {
       className={`flex justify-center items-center min-h-screen ${
         selectedCharacter === "gege-jr-jr"
           ? "bg-blue-900"
-          : selectedCharacter === "else-jr"
+          : selectedCharacter === "elsa-jr"
           ? "bg-white"
           : selectedCharacter === "anna-jr"
           ? "bg-red-500"
@@ -74,7 +78,7 @@ export default function CharacterSelect() {
                   <SelectItem value="gege-jr-jr">Gege Jr. Jr.</SelectItem>
                   <SelectItem value="meimei-jr-jr">Mei Mei Jr. Jr.</SelectItem>
                   <SelectItem value="anna-jr">Anna Jr.</SelectItem>
-                  <SelectItem value="else-jr">Elsa Jr.</SelectItem>
+                  <SelectItem value="elsa-jr">Elsa Jr.</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
