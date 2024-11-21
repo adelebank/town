@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { HomeIcon } from "lucide-react";
-import { ToiletIcon, Cloud, SprayCanIcon } from "lucide-react";
+import { ToiletIcon, Cloud, SprayCanIcon, IceCreamCone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 function playSineWave(setIsCloudShown: Function, setIsGrowing: Function) {
@@ -46,6 +46,10 @@ export default function HouseComponent() {
   useEffect(() => {
     const canvas = canvasRef.current;
 
+    if (canvas) {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
     const context = canvas?.getContext("2d");
     let drawing = false;
     const startDrawing = (event: MouseEvent) => {
@@ -89,25 +93,30 @@ export default function HouseComponent() {
   }, [isDrawingEnabled]);
 
   return (
-    <div>
-      <h1>House</h1>
-      <HomeIcon />
-      <Button variant="ghost" size="icon" onClick={handleSprayCanClick}>
-        <SprayCanIcon />
-      </Button>
-      <Button variant="ghost" size="icon" onClick={handleClick}>
-        <ToiletIcon />
-      </Button>
-      {isCloudShown && (
-        <Cloud
-          style={{
-            width: isGrowing ? "200px" : "100px",
-            height: isGrowing ? "200px" : "100px",
-            color: "brown",
-            transition: "width 5s, height 5s",
-          }}
-        />
-      )}
+    <>
+      <div style={{ zIndex: 100, position: "relative" }}>
+        <h1>House</h1>
+        <HomeIcon />
+        <Button variant="ghost" size="icon">
+          <IceCreamCone />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={handleSprayCanClick}>
+          <SprayCanIcon />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={handleClick}>
+          <ToiletIcon />
+        </Button>
+        {isCloudShown && (
+          <Cloud
+            style={{
+              width: isGrowing ? "200px" : "100px",
+              height: isGrowing ? "200px" : "100px",
+              color: "brown",
+              transition: "width 5s, height 5s",
+            }}
+          />
+        )}
+      </div>
       {isDrawingEnabled && (
         <canvas
           ref={canvasRef}
@@ -121,6 +130,6 @@ export default function HouseComponent() {
           }}
         />
       )}
-    </div>
+    </>
   );
 }
