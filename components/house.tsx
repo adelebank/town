@@ -11,18 +11,23 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-function playSineWave(setIsCloudShown: Function, setIsGrowing: Function) {
-  setTimeout(() => {
-    setIsGrowing(true);
-  }, 0);
+interface CloudState {
+  setIsCloudShown: (shown: boolean) => void;
+  setIsGrowing: (growing: boolean) => void;
+}
+
+function playSineWave({ setIsCloudShown, setIsGrowing }: CloudState) {
   setIsCloudShown(true);
+  setIsGrowing(true);
+
   const audioContext = new ((window as any).AudioContext ||
     (window as any).webkitAudioContext)();
   const oscillator = audioContext.createOscillator();
   oscillator.type = "sine";
-  oscillator.frequency.setValueAtTime(50, audioContext.currentTime); // 50 Hz for a low frequency sound
+  oscillator.frequency.setValueAtTime(50, audioContext.currentTime);
   oscillator.connect(audioContext.destination);
   oscillator.start();
+
   setTimeout(() => {
     oscillator.stop();
     setIsCloudShown(false);
@@ -35,36 +40,63 @@ export default function HouseComponent() {
   const [isCloudShown, setIsCloudShown] = useState(false);
   const [isGrowing, setIsGrowing] = useState(false);
   const [isDrawingEnabled, setIsDrawingEnabled] = useState(false);
+  const [cloudSize, setCloudSize] = useState(100);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleIceCreamClick = () => {
     setIsSmileShown(true);
-    setTimeout(() => {
-      setIsSmileShown(false);
-    }, 3000);
+    setTimeout(() => setIsSmileShown(false), 3000);
   };
 
   const handleClick = () => {
-    playSineWave(setIsCloudShown, setIsGrowing);
+    playSineWave({ setIsCloudShown, setIsGrowing });
+    setCloudSize(100); // Reset size
   };
 
   const handleSprayCanClick = () => {
-    if (isDrawingEnabled) {
-      setIsDrawingEnabled(false);
-    } else {
-      setIsDrawingEnabled(true);
-    }
+    setIsDrawingEnabled((prev) => !prev);
   };
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    let animationFrame: number;
+    if (isCloudShown) {
+      const startTime = Date.now();
+      const duration = 5000; // 5 seconds
+      const maxSize = 200;
 
-    if (canvas) {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const newSize = 100 + (maxSize - 100) * progress;
+        setCloudSize(newSize);
+
+        if (progress < 1) {
+          animationFrame = requestAnimationFrame(animate);
+        }
+      };
+
+      animationFrame = requestAnimationFrame(animate);
     }
-    const context = canvas?.getContext("2d");
+
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [isCloudShown]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
     let drawing = false;
+
     const startDrawing = (event: MouseEvent) => {
       drawing = true;
       draw(event);
@@ -72,36 +104,36 @@ export default function HouseComponent() {
 
     const endDrawing = () => {
       drawing = false;
-      context?.beginPath();
+      context.beginPath();
     };
 
     const draw = (event: MouseEvent) => {
       if (!drawing) return;
-      if (context && canvas) {
-        context.lineWidth = 5;
-        context.lineCap = "round";
-        context.strokeStyle = "red";
 
-        context.lineTo(
-          event.clientX - canvas.offsetLeft,
-          event.clientY - canvas.offsetTop
-        );
-        context.stroke();
-        context.beginPath();
-        context.moveTo(
-          event.clientX - canvas.offsetLeft,
-          event.clientY - canvas.offsetTop
-        );
-      }
+      context.lineWidth = 5;
+      context.lineCap = "round";
+      context.strokeStyle = "red";
+
+      context.lineTo(
+        event.clientX - canvas.offsetLeft,
+        event.clientY - canvas.offsetTop
+      );
+      context.stroke();
+      context.beginPath();
+      context.moveTo(
+        event.clientX - canvas.offsetLeft,
+        event.clientY - canvas.offsetTop
+      );
     };
-    canvas?.addEventListener("mousedown", startDrawing);
-    canvas?.addEventListener("mouseup", endDrawing);
-    canvas?.addEventListener("mousemove", draw);
+
+    canvas.addEventListener("mousedown", startDrawing);
+    canvas.addEventListener("mouseup", endDrawing);
+    canvas.addEventListener("mousemove", draw);
 
     return () => {
-      canvas?.removeEventListener("mousedown", startDrawing);
-      canvas?.removeEventListener("mouseup", endDrawing);
-      canvas?.removeEventListener("mousemove", draw);
+      canvas.removeEventListener("mousedown", startDrawing);
+      canvas.removeEventListener("mouseup", endDrawing);
+      canvas.removeEventListener("mousemove", draw);
     };
   }, [isDrawingEnabled]);
 
@@ -122,10 +154,10 @@ export default function HouseComponent() {
         {isCloudShown && (
           <Cloud
             style={{
-              width: isGrowing ? "200px" : "100px",
-              height: isGrowing ? "200px" : "100px",
+              width: `${cloudSize}px`,
+              height: `${cloudSize}px`,
               color: "brown",
-              transition: "width 5s, height 5s",
+              transition: "none",
             }}
           />
         )}

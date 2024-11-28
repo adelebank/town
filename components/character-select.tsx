@@ -48,6 +48,10 @@ export default function CharacterSelect() {
     }
   }, [isSubmitted, router]);
 
+  const handleCharacterSelect = () => {
+    router.push("/house");
+  };
+
   return (
     <div
       className={`flex justify-center items-center min-h-screen ${
