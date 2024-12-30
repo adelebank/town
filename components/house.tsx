@@ -10,6 +10,7 @@ import {
   Smile,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface CloudState {
   setIsCloudShown: (shown: boolean) => void;
@@ -36,6 +37,7 @@ function playSineWave({ setIsCloudShown, setIsGrowing }: CloudState) {
 }
 
 export default function HouseComponent() {
+  const router = useRouter();
   const [isSmileShown, setIsSmileShown] = useState(false);
   const [isCloudShown, setIsCloudShown] = useState(false);
   const [isGrowing, setIsGrowing] = useState(false);
@@ -86,6 +88,8 @@ export default function HouseComponent() {
   }, [isCloudShown]);
 
   useEffect(() => {
+    if (!isDrawingEnabled) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -137,11 +141,16 @@ export default function HouseComponent() {
     };
   }, [isDrawingEnabled]);
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <>
       <div style={{ zIndex: 100, position: "relative" }}>
         <h1>House</h1>
         <HomeIcon />
+        <button onClick={handleBack}>Go Back</button>
         <Button variant="ghost" size="icon" onClick={handleIceCreamClick}>
           {isSmileShown ? <Smile /> : <IceCreamCone />}
         </Button>

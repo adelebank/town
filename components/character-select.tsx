@@ -38,15 +38,17 @@ export default function CharacterSelect() {
         setProgress(start);
         if (start === 100) {
           clearInterval(interval);
-          if (selectedCharacter == "elsa-jr") {
+          if (selectedCharacter === "elsa-jr") {
             router.push("/house2");
+          } else if (selectedCharacter === "anna-jr") {
+            router.push("/house3");
           } else {
             router.push("/house");
           }
         }
-      }, 20); // 2000ms / 100 steps = 20ms per step
+      }, 20);
     }
-  }, [isSubmitted, router]);
+  }, [isSubmitted, router, selectedCharacter]);
 
   const handleCharacterSelect = () => {
     router.push("/house");
@@ -83,6 +85,7 @@ export default function CharacterSelect() {
                   <SelectItem value="meimei-jr-jr">Mei Mei Jr. Jr.</SelectItem>
                   <SelectItem value="anna-jr">Anna Jr.</SelectItem>
                   <SelectItem value="elsa-jr">Elsa Jr.</SelectItem>
+                  <SelectItem value="musical-jr">Musical Jr.</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
@@ -91,8 +94,12 @@ export default function CharacterSelect() {
         )}
         <CardFooter className="flex justify-center items-center">
           {!isSubmitted && (
-            <Button variant="outline" onClick={handleSubmit}>
-              Submit
+            <Button
+              variant="ghost"
+              className="opacity-50 hover:opacity-100 transition-opacity"
+              onClick={handleSubmit}
+            >
+              Secret Button 👻
             </Button>
           )}
           {isSubmitted && <Progress value={progress} />}
