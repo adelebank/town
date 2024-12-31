@@ -12,6 +12,10 @@ export default function HouseTwoComponent() {
   >([]);
   let snowflakeId = 0;
 
+  const handleBack = () => {
+    router.back();
+  };
+
   useEffect(() => {
     if (snowflakeMode) {
       const createSnowflake = (x: number, y: number) => {
@@ -54,10 +58,6 @@ export default function HouseTwoComponent() {
     }
   }, [snowflakeMode]);
 
-  const handleBack = () => {
-    router.back();
-  };
-
   return (
     <>
       <style jsx global>{`
@@ -96,7 +96,7 @@ export default function HouseTwoComponent() {
 
       <div style={{ zIndex: 100, position: "relative" }}>
         <button onClick={handleBack}>Go Back</button>
-        <h1>Elsa Jr&apos;s House</h1>
+        <h1>Frost Jr&apos;s House</h1>
         <HomeIcon />
         <button onClick={() => setSnowflakeMode(!snowflakeMode)}>
           <Snowflake size={20} />
